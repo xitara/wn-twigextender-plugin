@@ -1,0 +1,36 @@
+//@use '../abstracts/breakpoints' as *;
+
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+
+$font-1: Arial, serif;
+$font-2: Arial, serif;
+$font-3: Arial, serif;
+$font-4: Arial, serif;
+
+// container (uncomment to override default)
+// $container-max-widths: (
+//     sm: 540px,
+//     md: 720px,
+//     lg: 960px,
+//     xl: 1140px,
+//     xxl: 1320px,
+// );
+
+// breakpoints (uncomment to override default)
+// $grid-breakpoints: (
+//     xs: 0,
+//     sm: 576px,
+//     md: 768px,
+//     lg: 992px,
+//     xl: 1200px,
+//     xxl: 1400px
+// );
+
+// $font-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+// $font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+// $gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
+// $body-font-family: $font-sans-serif;
+// $body-font-size: 1rem;
+// $body-font-weight: 400;
+// $body-line-height: 1.5;

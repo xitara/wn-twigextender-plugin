@@ -1,0 +1,14 @@
+@import '~bootstrap/scss/utilities';
+
+$utilities: map-merge(
+    $utilities,
+    (
+        "button-rounded": (
+            property: border-radius,
+            class: button-rounded,
+            values: (
+                null: 29px,
+            ),
+        ),
+    )
+);
