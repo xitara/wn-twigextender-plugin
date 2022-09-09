@@ -29,11 +29,4 @@ class Plugin extends PluginBase
     {
         return (new TwigFilter())->registerMarkupTags();
     }
-
-    public function registerComponents()
-    {
-        return [
-            'Xitara\Nexus\Components\FontAwsome'        => 'fontAwsome',
-        ];
-    }
 }
