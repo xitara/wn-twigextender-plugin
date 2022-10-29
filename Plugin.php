@@ -5,7 +5,7 @@ namespace Xitara\TwigExtender;
 use Backend;
 use Backend\Models\UserRole;
 use System\Classes\PluginBase;
-use Xitara\Nexus\Classes\TwigFilter;
+use Xitara\TwigExtender\Classes\TwigFilter;
 
 /**
  * TwigExtender Plugin Information File

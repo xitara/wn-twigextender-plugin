@@ -1,6 +1,6 @@
 <?php
 
-namespace Xitara\Nexus\Classes;
+namespace Xitara\TwigExtender\Classes;
 
 use Carbon\Carbon;
 use chillerlan\QRCode\QRCode;
@@ -14,7 +14,8 @@ use League\Flysystem\FileNotFoundException;
 use Sabberworm\CSS\Parser as CssParser;
 use System\Classes\ImageResizer;
 use Winter\Storm\Parse\Bracket;
-use Xitara\Nexus\Plugin as Nexus;
+use Xitara\TwigExtender\Plugin as TwigExtender;
+use Str;
 
 /**
  * additional twig filters
@@ -43,6 +44,7 @@ class TwigFilter
                 'slug'          => [$this, 'filterSlug'],
                 'storage'       => [$this, 'filterStoragePath'],
                 'strip_html'    => [$this, 'filterStripHtml'],
+                'truncate' => [$this, 'filterTruncate'],
                 'truncate_html' => [$this, 'filterTruncateHtml'],
                 'unique'        => [$this, 'filterUnique'],
                 'qrcode'        => [$this, 'filterQrCode'],
@@ -269,7 +271,11 @@ class TwigFilter
             $lang = \Config::get('app.locale');
         }
 
-        return \Xitara\Nexus\Plugin::slug($text, $seperator, $lang);
+        if (class_exists("\Xitara\Nexus\Plugin")) {
+            return \Xitara\Nexus\Plugin::slug($text, $seperator, $lang);
+        }
+
+        return Str::slug($text, $seperator);
     }
 
     /**
@@ -283,14 +289,36 @@ class TwigFilter
     }
 
     /**
-     * truncate text and check html tags - |truncate_html
+     * truncate text and check html tags - |truncate
      * @param  string $text   string to truncate
      * @param  integer $lenght string length after truncate. Default: 100
      * @param  string $hint   hint after truncated text, default '...'
      * @return string         truncated string with html
      */
+    public function filterTruncate($text, $lenght = 100, $type = 'text', $hint = '...'): string
+    {
+        switch ($type) {
+            case 'html':
+                return Html::limit($text, $lenght, $hint);
+                break;
+            case 'text':
+            default:
+                return Str::limit($text, $lenght, $hint);
+                break;
+        }
+    }
+
+    /**
+     * truncate text and check html tags - |truncate_html
+     * @param  string $text   string to truncate
+     * @param  integer $lenght string length after truncate. Default: 100
+     * @param  string $hint   hint after truncated text, default '...'
+     * @return string         truncated string with html
+     * @deprecated
+     */
     public function filterTruncateHtml($text, $lenght = 100, $hint = '...'): string
     {
+        \Log::warning('Filter |truncate_html is deprecated. Use |truncate instead');
         return Html::limit($text, $lenght, $hint);
     }
 
@@ -545,7 +573,7 @@ class TwigFilter
 
             $timezone = Carbon::now($utcOffset)->tzName;
         } else {
-            $timezone = Nexus::getTimezone();
+            $timezone = TwigExtender::getTimezone();
         }
 
         \Log::debug($timezone);
