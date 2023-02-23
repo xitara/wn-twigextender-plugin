@@ -1,12 +1,12 @@
 {
-    "name": "webpack-boilerplate",
+    "name": "wn-twigextender-plugin",
     "version": "0.8.2",
     "description": "Webpack based boilerplate including ES6, Babel, Sass and much more",
     "author": "Manuel Burghammer",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/xitara/webpack-boilerplate.git"
+        "url": "https://github.com/xitara/wn-twigextender-plugin.git"
     },
     "scripts": {
         "install": "chmod 0755 ./bash/* && yarn build && bash ./bash/setup.sh && bash ./bash/composer.sh",

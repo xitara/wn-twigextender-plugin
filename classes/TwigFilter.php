@@ -291,19 +291,22 @@ class TwigFilter
     /**
      * truncate text and check html tags - |truncate
      * @param  string $text   string to truncate
-     * @param  integer $lenght string length after truncate. Default: 100
+     * @param  integer $length string length after truncate. Default: 100
+     * @param  string $type   text (default) or html -> proper tag handling
      * @param  string $hint   hint after truncated text, default '...'
      * @return string         truncated string with html
      */
-    public function filterTruncate($text, $lenght = 100, $type = 'text', $hint = '...'): string
+    public function filterTruncate($text, $length = 100, $type = 'text', $hint = '...'): string
     {
         switch ($type) {
             case 'html':
-                return Html::limit($text, $lenght, $hint);
+                \Log::debug(Html::limit($text, $length, $hint));
+                return Html::limit($text, $length, $hint);
                 break;
             case 'text':
             default:
-                return Str::limit($text, $lenght, $hint);
+                \Log::debug(Str::limit($text, $length, $hint));
+                return Str::limit($text, $length, $hint);
                 break;
         }
     }
@@ -311,15 +314,15 @@ class TwigFilter
     /**
      * truncate text and check html tags - |truncate_html
      * @param  string $text   string to truncate
-     * @param  integer $lenght string length after truncate. Default: 100
+     * @param  integer $length string length after truncate. Default: 100
      * @param  string $hint   hint after truncated text, default '...'
      * @return string         truncated string with html
      * @deprecated
      */
-    public function filterTruncateHtml($text, $lenght = 100, $hint = '...'): string
+    public function filterTruncateHtml($text, $length = 100, $hint = '...'): string
     {
         \Log::warning('Filter |truncate_html is deprecated. Use |truncate instead');
-        return Html::limit($text, $lenght, $hint);
+        return Html::limit($text, $length, $hint);
     }
 
     /**
@@ -329,7 +332,7 @@ class TwigFilter
      *     'first': 'title|description', // outputs title or description as default. default: title
      *     'alt': true|false, // show alt-attribute, default: true
      *     'title': true|false, // show title-attribute, default: false
-     *     'classes': 'class-1 class-2 class-n', // optional. classes for image-tag. will ignored in SVG
+     *     'class': 'class-1 class-2 class-n', // optional. classes for image-tag. will ignored in SVG
      *     'default': { // optional. will be used if image has no title and description
      *         title: 'Foo',
      *         description: 'Bar',
@@ -338,11 +341,15 @@ class TwigFilter
      *
      * @todo fix system for theme and plugin
      * @param  string $path filename relative to project root
-     * @param  string $base theme, media or plugin
      * @return string       content of file
      */
     public function filterInject($file, $base = null, $options = []): string
     {
+        /**
+         * decode filename to fetch it from filesystem
+         */
+        $file = urldecode($file);
+
         /**
          * fix for backward compatibility
          */
@@ -354,6 +361,9 @@ class TwigFilter
         if (substr($file, 0, 1) == '/') {
             $file = substr($file, 1);
         }
+
+        \Log::debug($file);
+        \Log::debug(urldecode($file));
 
         /**
          * only for backward compatibility
@@ -384,6 +394,7 @@ class TwigFilter
             return '';
         }
 
+
         if (strpos(mime_content_type($file), 'svg') === false) {
             $alt = $title = null;
 
@@ -405,11 +416,12 @@ class TwigFilter
              * add classes if given
              */
             $classes = '';
-            if ($options['classes'] ?? false === true) {
-                $classes = ' class="' . $options['classes'] . '"';
+            if ($options['class'] ?? false === true) {
+                $classes = ' class="' . $options['class'] . '"';
             }
 
             $file = str_replace(base_path(), '', $file);
+            \Log::debug('<img src="' . url($file) . '"' . $alt . $title . $classes . '>');
 
             return '<img src="' . url($file) . '"' . $alt . $title . $classes . '>';
         }
