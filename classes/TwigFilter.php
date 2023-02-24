@@ -331,7 +331,7 @@ class TwigFilter
      * options: {
      *     'first': 'title|description', // outputs title or description as default. default: title
      *     'alt': true|false, // show alt-attribute, default: true
-     *     'title': true|false, // show title-attribute, default: false
+     *     'title': true|false, // show title-attribute, default: true
      *     'class': 'class-1 class-2 class-n', // optional. classes for image-tag. will ignored in SVG
      *     'default': { // optional. will be used if image has no title and description
      *         title: 'Foo',
@@ -408,7 +408,7 @@ class TwigFilter
             /**
              * generate title, display as option -> title: true
              */
-            if ($options['title'] ?? false === true) {
+            if ($options['title'] ?? true === true) {
                 $title = $this->checkImageText($file, $options, 'title');
             }
 
@@ -420,10 +420,27 @@ class TwigFilter
                 $classes = ' class="' . $options['class'] . '"';
             }
 
-            $file = str_replace(base_path(), '', $file);
-            \Log::debug('<img src="' . url($file) . '"' . $alt . $title . $classes . '>');
+            /**
+             * add attributes if given
+             */
 
-            return '<img src="' . url($file) . '"' . $alt . $title . $classes . '>';
+            \Log::debug($options['attributes']);
+
+            $attributes = [];
+            if (isset($options['attributes'])) {
+                foreach ($options['attributes'] as $attribute => $data) {
+                    if ($data !== null) {
+                        $attributes[] = $attribute . '="' . $data . '"';
+                    }
+                }
+            }
+
+            \Log::debug($attributes);
+
+            $file = str_replace(base_path(), '', $file);
+
+            return '<img src="' . url($file) . '"' . $alt . $title . $classes .
+                join(' ', $attributes) . '>';
         }
 
         $fileContent = File::get($file);
@@ -522,7 +539,7 @@ class TwigFilter
             $text = Html::strip($image->description);
         }
 
-        if ($text == '') {
+        if ($text == '' || ($options['first'] ?? 'title') == 'title') {
             $text = $options['default']['title'] ?? '';
         }
 
