@@ -423,9 +423,6 @@ class TwigFilter
             /**
              * add attributes if given
              */
-
-            \Log::debug($options['attributes']);
-
             $attributes = [];
             if (isset($options['attributes'])) {
                 foreach ($options['attributes'] as $attribute => $data) {
