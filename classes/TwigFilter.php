@@ -362,30 +362,6 @@ class TwigFilter
             $file = substr($file, 1);
         }
 
-        \Log::debug($file);
-        \Log::debug(urldecode($file));
-
-        /**
-         * only for backward compatibility
-         * @depricated
-         */
-        switch ($base) {
-            case 'theme':
-                $theme = Theme::getActiveTheme();
-                $file  = $theme->getDirName() . '/' . $file;
-                $file  = \Config::get('cms.themesPath') . '/' . $file;
-                break;
-            case 'media':
-                $file = base_path(\Config::get('cms.storage.media.path') . '/' . $file);
-                break;
-            case 'plugin':
-                $file = \Config::get('cms.pluginsPath') . '/' . $file;
-                break;
-            default:
-                $file = base_path($file);
-                break;
-        }
-
         if (strpos($file, '://')) {
             $file = str_replace(url(''), '', $file);
         }
@@ -393,7 +369,6 @@ class TwigFilter
         if (!File::exists($file)) {
             return '';
         }
-
 
         if (strpos(mime_content_type($file), 'svg') === false) {
             $alt = $title = null;
@@ -432,8 +407,47 @@ class TwigFilter
                 }
             }
 
-            \Log::debug($attributes);
+            /**
+             * remove url from file
+             */
+            if (strpos($file, '://')) {
+                $file = str_replace(url(''), '', $file);
+            }
 
+            /**
+             * if not found image return emtpy string
+             */
+            // if (!File::exists(base_path($file))) {
+            // \Log::error('image ' . $file . ' not found');
+            // return '';
+            // }
+
+            /**
+             * resize image
+             */
+            if (!isset($options['resize'])) {
+                $options['resize'] = [
+                    'width' => null,
+                    'height' => null,
+                ];
+            }
+
+            if ($options['resize']['width'] == null && $options['resize']['height'] == null) {
+                $file = ImageResizer::filterGetUrl(
+                    url($file),
+                    $options['resize']['width'],
+                    $options['resize']['height'],
+                    [
+                        'extension' => $options['resize']['ext'] ?? 'png',
+                        'quality'   => $options['resize']['quality'] ?? 90,
+                        'filters'   => $options['resize']['options'] ?? null,
+                    ]
+                );
+            }
+
+            /**
+             * generate image path and return img-element
+             */
             $file = str_replace(base_path(), '', $file);
 
             return '<img src="' . url($file) . '"' . $alt . $title . $classes .
