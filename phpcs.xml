@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset name="Meine Standards">
+    <rule ref="PSR12.Files.FileHeader" />
+    <rule ref="Squiz">
+        <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps" />
+        <exclude name="Squiz.Commenting.ClosingDeclarationComment" />
+        <exclude name="Squiz.WhiteSpace.FunctionSpacing" />
+        <exclude name="Squiz.WhiteSpace.FunctionClosingBraceSpace" />
+    </rule>
+</ruleset>

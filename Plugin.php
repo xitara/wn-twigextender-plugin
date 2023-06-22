@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xitara\TwigExtender;
 
-use Backend;
-use Backend\Models\UserRole;
+// use Backend;
+// use Backend\Models\UserRole;
 use System\Classes\PluginBase;
 use Xitara\TwigExtender\Classes\TwigFilter;
 
@@ -13,7 +15,7 @@ use Xitara\TwigExtender\Classes\TwigFilter;
 class Plugin extends PluginBase
 {
     /**
-     * Returns information about this plugin.
+     Returns information about this plugin.
      */
     public function pluginDetails(): array
     {
@@ -21,7 +23,7 @@ class Plugin extends PluginBase
             'name'        => 'xitara.twigextender::lang.plugin.name',
             'description' => 'xitara.twigextender::lang.plugin.description',
             'author'      => 'Xitara',
-            'icon'        => 'icon-leaf'
+            'icon'        => 'icon-leaf',
         ];
     }
 

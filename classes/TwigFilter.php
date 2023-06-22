@@ -357,6 +357,7 @@ class TwigFilter
             $options = $base;
             $base    = null;
         }
+        /** ----------------------------- */
 
         if (substr($file, 0, 1) == '/') {
             $file = substr($file, 1);
@@ -560,6 +561,13 @@ class TwigFilter
             && ($text == '' || ($options['first'] ?? 'title') == 'title')
         ) {
             $text = Html::strip($image->title);
+        }
+
+        /**
+         * Set alt-text to filename if no text is given to make img-tag valid
+         */
+        if ($art == 'alt' && $text == '') {
+            $text = basename($image);
         }
 
         if ($text != '') {
