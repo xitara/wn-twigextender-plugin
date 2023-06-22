@@ -37,6 +37,7 @@ class TwigFilter
                 'localize'      => [$this, 'filterLocalize'],
                 'mediadata'     => [$this, 'filterMediaData'],
                 'parentlink'    => [$this, 'filterParentLink'],
+                'link'          => [$this, 'filterLink'],
                 'phone_link'    => [$this, 'filterPhoneLink'],
                 'plugin'        => [$this, 'filterPluginsPath'],
                 'regex_replace' => [$this, 'filterRegexReplace'],
@@ -55,6 +56,46 @@ class TwigFilter
                 'uid'    => [$this, 'functionGenerateUid'],
             ],
         ];
+    }
+
+    /**
+     * Create link from text
+     *
+     * @autor   mburghammer
+     * @date    2023-04-04T20:02:36+02:00
+     * @version 0.0.1
+     * @since   0.0.1
+     * @param   string      $text    Text from twig
+     * @param   array      $options Options from twig
+     * @return  string               Complete link in html
+     */
+    public function filterLink($text, $options = null): string
+    {
+        /**
+         * Process options
+         */
+        $isBlank = $options['is_blank'] ?? null;
+        $classes    = $options['classes'] ?? null;
+        $linkText = $options['text'] ?? null;
+
+        /**
+         * Generate link
+         */
+        $link = '<a';
+
+        if ($isBlank !== null) {
+            $link .= ' target="_blank"';
+        }
+
+        if ($classes !== null) {
+            $link .= ' class="' . $classes . '"';
+        }
+
+        $link .= ' href="' . $text . '">';
+        $link .= $linkText ?? $text;
+        $link .= '</a>';
+
+        return $link;
     }
 
     /**
