@@ -423,11 +423,10 @@ class TwigFilter
             /**
              * add attributes if given
              */
-
-            \Log::debug($options['attributes']);
-
             $attributes = [];
             if (isset($options['attributes'])) {
+                \Log::debug($options['attributes']);
+
                 foreach ($options['attributes'] as $attribute => $data) {
                     if ($data !== null) {
                         $attributes[] = $attribute . '="' . $data . '"';
