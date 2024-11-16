@@ -16,6 +16,7 @@ use System\Classes\ImageResizer;
 use Winter\Storm\Parse\Bracket;
 use Xitara\TwigExtender\Plugin as TwigExtender;
 use Str;
+use Log;
 
 /**
  * additional twig filters
@@ -37,6 +38,7 @@ class TwigFilter
                 'localize'      => [$this, 'filterLocalize'],
                 'mediadata'     => [$this, 'filterMediaData'],
                 'parentlink'    => [$this, 'filterParentLink'],
+                'link'          => [$this, 'filterLink'],
                 'phone_link'    => [$this, 'filterPhoneLink'],
                 'plugin'        => [$this, 'filterPluginsPath'],
                 'regex_replace' => [$this, 'filterRegexReplace'],
@@ -55,6 +57,46 @@ class TwigFilter
                 'uid'    => [$this, 'functionGenerateUid'],
             ],
         ];
+    }
+
+    /**
+     * Create link from text
+     *
+     * @autor   mburghammer
+     * @date    2023-04-04T20:02:36+02:00
+     * @version 0.0.1
+     * @since   0.0.1
+     * @param   string      $text    Text from twig
+     * @param   array      $options Options from twig
+     * @return  string               Complete link in html
+     */
+    public function filterLink($text, $options = null): string
+    {
+        /**
+         * Process options
+         */
+        $isBlank = $options['is_blank'] ?? null;
+        $classes    = $options['classes'] ?? null;
+        $linkText = $options['text'] ?? null;
+
+        /**
+         * Generate link
+         */
+        $link = '<a';
+
+        if ($isBlank !== null) {
+            $link .= ' target="_blank"';
+        }
+
+        if ($classes !== null) {
+            $link .= ' class="' . $classes . '"';
+        }
+
+        $link .= ' href="' . $text . '">';
+        $link .= $linkText ?? $text;
+        $link .= '</a>';
+
+        return $link;
     }
 
     /**
@@ -202,13 +244,19 @@ class TwigFilter
             return $empty;
         }
 
-        if (substr($file, 0, 1) == '/') {
+        if (substr($file, 0, 1) == '/' && strpos($file, base_path()) === false) {
             $file = base_path(substr($file, 1));
         }
 
+        if (File::exists(urldecode($file))) {
+            $file = urldecode($file);
+        }
+
         if (!File::exists($file) || File::isDirectory($file)) {
+            Log::debug('file not exists: ' . $file);
             return $empty;
         }
+        // var_dump($file);
 
         if (strpos(File::mimeType($file), '/')) {
             list($type, $art) = explode('/', File::mimeType($file));
@@ -346,55 +394,47 @@ class TwigFilter
     public function filterInject($file, $base = null, $options = []): string
     {
         /**
-         * decode filename to fetch it from filesystem
+         * Decode filename to fetch it from filesystem
          */
         $file = urldecode($file);
 
         /**
-         * fix for backward compatibility
+         * Fix for backward compatibility
          */
         if (is_array($base)) {
             $options = $base;
             $base    = null;
         }
 
+        /**
+         * Remove base path from given path
+         */
+        $file = str_replace(base_path(), '', $file);
+
+        /**
+         * Remove trailing space if exists
+         */
         if (substr($file, 0, 1) == '/') {
             $file = substr($file, 1);
         }
 
-        \Log::debug($file);
-        \Log::debug(urldecode($file));
-
         /**
-         * only for backward compatibility
-         * @depricated
+         * Remove URL handler if exists
          */
-        switch ($base) {
-            case 'theme':
-                $theme = Theme::getActiveTheme();
-                $file  = $theme->getDirName() . '/' . $file;
-                $file  = \Config::get('cms.themesPath') . '/' . $file;
-                break;
-            case 'media':
-                $file = base_path(\Config::get('cms.storage.media.path') . '/' . $file);
-                break;
-            case 'plugin':
-                $file = \Config::get('cms.pluginsPath') . '/' . $file;
-                break;
-            default:
-                $file = base_path($file);
-                break;
-        }
-
         if (strpos($file, '://')) {
             $file = str_replace(url(''), '', $file);
         }
 
+        /**
+         * Check if file exists. If not, return an empty string
+         */
         if (!File::exists($file)) {
             return '';
         }
 
-
+        /**
+         * Handle binary images
+         */
         if (strpos(mime_content_type($file), 'svg') === false) {
             $alt = $title = null;
 
@@ -425,8 +465,6 @@ class TwigFilter
              */
             $attributes = [];
             if (isset($options['attributes'])) {
-                \Log::debug($options['attributes']);
-
                 foreach ($options['attributes'] as $attribute => $data) {
                     if ($data !== null) {
                         $attributes[] = $attribute . '="' . $data . '"';
@@ -434,14 +472,54 @@ class TwigFilter
                 }
             }
 
-            \Log::debug($attributes);
+            /**
+             * remove url from file
+             */
+            if (strpos($file, '://')) {
+                $file = str_replace(url(''), '', $file);
+            }
 
-            $file = str_replace(base_path(), '', $file);
+            /**
+             * if not found image return emtpy string
+             */
+            // if (!File::exists(base_path($file))) {
+            // \Log::error('image ' . $file . ' not found');
+            // return '';
+            // }
 
+            /**
+             * resize image
+             */
+            if (!isset($options['resize'])) {
+                $options['resize'] = [
+                    'width' => null,
+                    'height' => null,
+                ];
+            }
+
+            if ($options['resize']['width'] == null && $options['resize']['height'] == null) {
+                $file = ImageResizer::filterGetUrl(
+                    url($file),
+                    $options['resize']['width'],
+                    $options['resize']['height'],
+                    [
+                        'extension' => $options['resize']['ext'] ?? 'png',
+                        'quality'   => $options['resize']['quality'] ?? 90,
+                        'filters'   => $options['resize']['options'] ?? null,
+                    ]
+                );
+            }
+
+            /**
+             * generate image path and return img-element
+             */
             return '<img src="' . url($file) . '"' . $alt . $title . $classes .
                 join(' ', $attributes) . '>';
         }
 
+        /**
+         * If image is a svg, get file content and return raw svg-data
+         */
         $fileContent = File::get($file);
         $fileContent = preg_replace('/<!--(.|\s)*?\-->/', '', $fileContent);
         $fileContent = preg_replace('/<\?xml(.|\s)*?\?>/', '', $fileContent);
