@@ -9,14 +9,13 @@ use Cms\Classes\Theme;
 use Config;
 use File;
 use Html;
-use Storage;
-use League\Flysystem\FileNotFoundException;
+use Log;
 use Sabberworm\CSS\Parser as CssParser;
+use Storage;
+use Str;
 use System\Classes\ImageResizer;
 use Winter\Storm\Parse\Bracket;
 use Xitara\TwigExtender\Plugin as TwigExtender;
-use Str;
-use Log;
 
 /**
  * additional twig filters
@@ -26,35 +25,35 @@ class TwigFilter
     public function registerMarkupTags()
     {
         return [
-            'filters'   => [
-                'backenduser'   => [$this, 'filterBackendUser'],
-                'backtrans'     => [$this, 'filterTranslate'],
-                'css_var'       => [$this, 'filterCssVars'],
-                'email_link'    => [$this, 'filterEmailLink'],
-                'filesize'      => [$this, 'filterFileSize'],
-                'frontenduser'  => [$this, 'filterFrontendUser'],
-                'image_text'    => [$this, 'filterAddImageText'],
-                'inject'        => [$this, 'filterInject'],
-                'localize'      => [$this, 'filterLocalize'],
-                'mediadata'     => [$this, 'filterMediaData'],
-                'parentlink'    => [$this, 'filterParentLink'],
-                'link'          => [$this, 'filterLink'],
-                'phone_link'    => [$this, 'filterPhoneLink'],
-                'plugin'        => [$this, 'filterPluginsPath'],
+            'filters' => [
+                'backenduser' => [$this, 'filterBackendUser'],
+                'backtrans' => [$this, 'filterTranslate'],
+                'css_var' => [$this, 'filterCssVars'],
+                'email_link' => [$this, 'filterEmailLink'],
+                'filesize' => [$this, 'filterFileSize'],
+                'frontenduser' => [$this, 'filterFrontendUser'],
+                'image_text' => [$this, 'filterAddImageText'],
+                'inject' => [$this, 'filterInject'],
+                'localize' => [$this, 'filterLocalize'],
+                'mediadata' => [$this, 'filterMediaData'],
+                'parentlink' => [$this, 'filterParentLink'],
+                'link' => [$this, 'filterLink'],
+                'phone_link' => [$this, 'filterPhoneLink'],
+                'plugin' => [$this, 'filterPluginsPath'],
                 'regex_replace' => [$this, 'filterRegexReplace'],
-                'scrset'        => [$this, 'filterScrset'],
-                'slug'          => [$this, 'filterSlug'],
-                'storage'       => [$this, 'filterStoragePath'],
-                'strip_html'    => [$this, 'filterStripHtml'],
+                'scrset' => [$this, 'filterScrset'],
+                'slug' => [$this, 'filterSlug'],
+                'storage' => [$this, 'filterStoragePath'],
+                'strip_html' => [$this, 'filterStripHtml'],
                 'truncate' => [$this, 'filterTruncate'],
                 'truncate_html' => [$this, 'filterTruncateHtml'],
-                'unique'        => [$this, 'filterUnique'],
-                'qrcode'        => [$this, 'filterQrCode'],
+                'unique' => [$this, 'filterUnique'],
+                'qrcode' => [$this, 'filterQrCode'],
             ],
             'functions' => [
                 'config' => [$this, 'functionConfig'],
-                'd'      => [$this, 'functionDump'],
-                'uid'    => [$this, 'functionGenerateUid'],
+                'd' => [$this, 'functionDump'],
+                'uid' => [$this, 'functionGenerateUid'],
             ],
         ];
     }
@@ -66,17 +65,17 @@ class TwigFilter
      * @date    2023-04-04T20:02:36+02:00
      * @version 0.0.1
      * @since   0.0.1
-     * @param   string      $text    Text from twig
-     * @param   array      $options Options from twig
-     * @return  string               Complete link in html
+     * @param  string $text    Text from twig
+     * @param  array  $options Options from twig
+     * @return string Complete link in html
      */
-    public function filterLink($text, $options = null): string
+    public function filterLink($text, $options = null) : string
     {
         /**
          * Process options
          */
         $isBlank = $options['is_blank'] ?? null;
-        $classes    = $options['classes'] ?? null;
+        $classes = $options['classes'] ?? null;
         $linkText = $options['text'] ?? null;
 
         /**
@@ -110,17 +109,17 @@ class TwigFilter
      * }
      *
      * @param  string $text    text from twig
-     * @param  array $options options from twig
-     * @return string          complete link in html
+     * @param  array  $options options from twig
+     * @return string complete link in html
      */
-    public function filterPhoneLink($text, $options = null): string
+    public function filterPhoneLink($text, $options = null) : string
     {
         /**
          * process options
          */
         $textBefore = $options['text_before'] ?? '';
-        $textAfter  = $options['text_after'] ?? '';
-        $classes    = $options['classes'] ?? null;
+        $textAfter = $options['text_after'] ?? '';
+        $classes = $options['classes'] ?? null;
         $hideNubmer = $options['hide_number'] ?? false;
 
         /**
@@ -160,26 +159,26 @@ class TwigFilter
      * }
      *
      * @param  string $text    text from twig
-     * @param  array $options options from twig
-     * @return string          complete link in html
+     * @param  array  $options options from twig
+     * @return string complete link in html
      */
-    public function filterEmailLink($text, $options = null): string
+    public function filterEmailLink($text, $options = null) : string
     {
         /**
          * remove subject and body from mail if given
          */
         $parts = explode('?', $text);
-        $mail  = $parts[0];
+        $mail = $parts[0];
         $query = isset($parts[1]) ? '?' . $parts[1] : '';
 
         /**
          * process options
          */
         $textBefore = $options['text_before'] ?? '';
-        $textAfter  = $options['text_after'] ?? '';
-        $classes    = $options['classes'] ?? null;
-        $hideMail   = $options['hide_mail'] ?? false;
-        $image      = $options['image'] ?? null;
+        $textAfter = $options['text_after'] ?? '';
+        $classes = $options['classes'] ?? null;
+        $hideMail = $options['hide_mail'] ?? false;
+        $image = $options['image'] ?? null;
 
         /**
          * generate link
@@ -227,17 +226,17 @@ class TwigFilter
      * file should be in storage/app/[path], where path-default is "media"
      * for the media-manager
      *
-     * @param  string $file filename
-     * @param  string $path  relativ path in storage/app
-     * @return array|boolean        filedata or false if file not exists
+     * @param  string     $file filename
+     * @param  string     $path relativ path in storage/app
+     * @return array|bool filedata or false if file not exists
      */
-    public function filterMediaData($file = null): array
+    public function filterMediaData($file = null) : array
     {
         $empty = [
-            'size'      => 0,
+            'size' => 0,
             'mime_type' => 'none/none',
-            'type'      => 'none',
-            'art'       => 'none',
+            'type' => 'none',
+            'art' => 'none',
         ];
 
         if ($file === null || $file == '') {
@@ -254,6 +253,7 @@ class TwigFilter
 
         if (!File::exists($file) || File::isDirectory($file)) {
             Log::debug('file not exists: ' . $file);
+
             return $empty;
         }
         // var_dump($file);
@@ -267,10 +267,10 @@ class TwigFilter
         }
 
         $data = [
-            'size'      => File::size($file),
+            'size' => File::size($file),
             'mime_type' => File::mimeType($file),
-            'type'      => $type ?? null,
-            'art'       => $art ?? null,
+            'type' => $type ?? null,
+            'art' => $art ?? null,
         ];
 
         return $data;
@@ -281,13 +281,14 @@ class TwigFilter
      *
      * returns filesize of given file
      *
-     * @param  string $filename filename
-     * @param  string $path      path relative to storage/app, default "media"
-     * @return int|boolean           filesize in bytes or false if file not exists
+     * @param  string   $filename filename
+     * @param  string   $path     path relative to storage/app, default "media"
+     * @return int|bool filesize in bytes or false if file not exists
      */
-    public function filterFileSize($filename, $path = 'media'): string
+    public function filterFileSize($filename, $path = 'media') : string
     {
         $size = Storage::size($path . $filename);
+
         return $size;
     }
 
@@ -299,9 +300,9 @@ class TwigFilter
      * @param  string $subject     source string
      * @param  string $pattern     pattern to replace
      * @param  string $replacement replacement string
-     * @return string              new string
+     * @return string new string
      */
-    public function filterRegexReplace($subject, $pattern, $replacement): string
+    public function filterRegexReplace($subject, $pattern, $replacement) : string
     {
         return preg_replace($pattern, $replacement, $subject);
     }
@@ -311,7 +312,7 @@ class TwigFilter
      * @param  string $text      text to slug
      * @param  string $seperator seperator, space will be replaced, default "-"
      * @param  string $lang      language for slug, default app.locale
-     * @return string            slugged text
+     * @return string slugged text
      */
     public function filterSlug($text, $seperator = '-', $lang = null)
     {
@@ -329,7 +330,7 @@ class TwigFilter
     /**
      * strip html from a string - |strip_html
      * @param  string $text string to replace html within
-     * @return string       string without html
+     * @return string string without html
      */
     public function filterStripHtml($text)
     {
@@ -339,21 +340,23 @@ class TwigFilter
     /**
      * truncate text and check html tags - |truncate
      * @param  string $text   string to truncate
-     * @param  integer $length string length after truncate. Default: 100
+     * @param  int    $length string length after truncate. Default: 100
      * @param  string $type   text (default) or html -> proper tag handling
      * @param  string $hint   hint after truncated text, default '...'
-     * @return string         truncated string with html
+     * @return string truncated string with html
      */
-    public function filterTruncate($text, $length = 100, $type = 'text', $hint = '...'): string
+    public function filterTruncate($text, $length = 100, $type = 'text', $hint = '...') : string
     {
         switch ($type) {
             case 'html':
                 \Log::debug(Html::limit($text, $length, $hint));
+
                 return Html::limit($text, $length, $hint);
                 break;
             case 'text':
             default:
                 \Log::debug(Str::limit($text, $length, $hint));
+
                 return Str::limit($text, $length, $hint);
                 break;
         }
@@ -362,14 +365,15 @@ class TwigFilter
     /**
      * truncate text and check html tags - |truncate_html
      * @param  string $text   string to truncate
-     * @param  integer $length string length after truncate. Default: 100
+     * @param  int    $length string length after truncate. Default: 100
      * @param  string $hint   hint after truncated text, default '...'
-     * @return string         truncated string with html
+     * @return string truncated string with html
      * @deprecated
      */
-    public function filterTruncateHtml($text, $length = 100, $hint = '...'): string
+    public function filterTruncateHtml($text, $length = 100, $hint = '...') : string
     {
         \Log::warning('Filter |truncate_html is deprecated. Use |truncate instead');
+
         return Html::limit($text, $length, $hint);
     }
 
@@ -389,9 +393,9 @@ class TwigFilter
      *
      * @todo fix system for theme and plugin
      * @param  string $path filename relative to project root
-     * @return string       content of file
+     * @return string content of file
      */
-    public function filterInject($file, $base = null, $options = []): string
+    public function filterInject($file, $base = null, $options = []) : string
     {
         /**
          * Decode filename to fetch it from filesystem
@@ -403,7 +407,7 @@ class TwigFilter
          */
         if (is_array($base)) {
             $options = $base;
-            $base    = null;
+            $base = null;
         }
 
         /**
@@ -504,8 +508,8 @@ class TwigFilter
                     $options['resize']['height'],
                     [
                         'extension' => $options['resize']['ext'] ?? 'png',
-                        'quality'   => $options['resize']['quality'] ?? 90,
-                        'filters'   => $options['resize']['options'] ?? null,
+                        'quality' => $options['resize']['quality'] ?? 90,
+                        'filters' => $options['resize']['options'] ?? null,
                     ]
                 );
             }
@@ -532,7 +536,7 @@ class TwigFilter
     /**
      * get data from config files - config()
      * @param  string $text config route like Config::get() -> example: app.name
-     * @return string       config-data or null
+     * @return string config-data or null
      */
     public function functionConfig($text)
     {
@@ -541,8 +545,8 @@ class TwigFilter
 
     /**
      * wrapper to phps var_dump - d()
-     * @param  mixed $data data to var_dump()
-     * @return string       var_dumped string
+     * @param  mixed  $data data to var_dump()
+     * @return string var_dumped string
      */
     public function functionDump($data)
     {
@@ -567,10 +571,10 @@ class TwigFilter
      * }
      *
      * @param  object $image   image object from attached image
-     * @param  array $options some optional options
-     * @return string          prefixed text with $art
+     * @param  array  $options some optional options
+     * @return string prefixed text with $art
      */
-    public function filterAddImageText($image, $options = null): string
+    public function filterAddImageText($image, $options = null) : string
     {
         if ($image === null) {
             return '';
@@ -600,9 +604,9 @@ class TwigFilter
      *
      * @see self::filterAddImageText()
      * @param  object $image   image object from attached image
-     * @param  array $options some optional options
+     * @param  array  $options some optional options
      * @param  string $art     alt or title
-     * @return string          prefixed text with $art
+     * @return string prefixed text with $art
      */
     private function checkImageText($image, $options, $art)
     {
@@ -642,21 +646,22 @@ class TwigFilter
      * @date    2021-01-01T15:26:37+01:00
      * @version 0.0.1
      * @since   0.0.1
-     * @return  string      unique id
+     * @return string unique id
      */
-    public function functionGenerateUid(): string
+    public function functionGenerateUid() : string
     {
         $id = uniqid(rand(), true);
         $id = str_replace('.', '-', $id);
+
         return $id;
     }
 
     /**
      * creates a link to parent page (one level up) - |parentlink
      * @param  string $text filename relative to project root
-     * @return string       content of file
+     * @return string content of file
      */
-    public function filterParentLink($text): string
+    public function filterParentLink($text) : string
     {
         $parts = explode('/', $text);
         array_pop($parts);
@@ -666,8 +671,8 @@ class TwigFilter
 
     /**
      * |localize(this.param.utcOffset) - generates date and time with utcOffset
-     * @param  array $data   datetime-string, utc-offset
-     * @return string       patched timestamp
+     * @param  array  $data datetime-string, utc-offset
+     * @return string patched timestamp
      */
     public function filterLocalize(...$data)
     {
@@ -700,18 +705,18 @@ class TwigFilter
      * @todo <mid>check for active URL with Briddle.MultiSite</mid>
      *
      * @param  string $string string to parse
-     * @param  array $vars optional vars
-     * @return  string      sprite with full path
+     * @param  array  $vars   optional vars
+     * @return string sprite with full path
      */
 
     public function filterCssVars($string, ...$vars)
     {
-        $theme    = Theme::getActiveTheme();
+        $theme = Theme::getActiveTheme();
         $mediaUrl = str_replace(base_path() . '/', '', storage_path('app/media'));
 
         $string = Bracket::parse($string, [
-            'theme'  => url($theme->getDirName()),
-            'media'  => url($mediaUrl),
+            'theme' => url($theme->getDirName()),
+            'media' => url($mediaUrl),
             'plugin' => url(Config::get('cms.pluginsPath')),
         ]);
 
@@ -735,11 +740,11 @@ class TwigFilter
      * @since   0.0.1
      *
      * @param  string $string string to add storage-path to
-     * @return string         $string with relative storage-path
+     * @return string $string with relative storage-path
      */
     public function filterStoragePath($string)
     {
-        $appPath     = str_replace(base_path() . '/', '', app_path());
+        $appPath = str_replace(base_path() . '/', '', app_path());
         $storagePath = str_replace(base_path() . '/', '', storage_path());
 
         return $storagePath . '/' . $appPath . '/' . $string;
@@ -754,7 +759,7 @@ class TwigFilter
      * @since   0.0.1
      *
      * @param  string $string string to add storage-path to
-     * @return string         $string with relative storage-path
+     * @return string $string with relative storage-path
      */
     public function filterPluginsPath($string)
     {
@@ -772,7 +777,7 @@ class TwigFilter
      * @since   0.0.1
      *
      * @param  string $string string to translate
-     * @return string         $string translated string
+     * @return string $string translated string
      */
     public function filterTranslate($string)
     {
@@ -801,13 +806,13 @@ class TwigFilter
      *     'title': 'title-text'
      * }, 'png', 70) }}
      *
-     * @param  string $image relative image path
-     * @param  array $sizes list with sizes (key is similar to breakpoint)
-     * @param  array $text alt/title. use this as keys
-     * @param  string $ext extension to convert image
+     * @param  string $image   relative image path
+     * @param  array  $sizes   list with sizes (key is similar to breakpoint)
+     * @param  array  $text    alt/title. use this as keys
+     * @param  string $ext     extension to convert image
      * @param  string $quality quality after resizing
-     * @param  array $options see https://wintercms.com/docs/services/image-resizing#usage for details
-     * @return string         $image translated string
+     * @param  array  $options see https://wintercms.com/docs/services/image-resizing#usage for details
+     * @return string $image translated string
      */
     public function filterScrset($image, $sizes, $text = null, $ext = null, $quality = 90, $options = null)
     {
@@ -832,11 +837,13 @@ class TwigFilter
          */
         if (!File::exists(base_path($image))) {
             \Log::error('image ' . $image . ' not found');
+
             return '';
         }
 
         if (!File::exists(themes_path($theme->getDirName() . '/assets/css/breakpoints.css'))) {
             \Log::error('breakpoints.css not found in ' . themes_path($theme->getDirName()));
+
             return '';
         }
 
@@ -850,14 +857,14 @@ class TwigFilter
         /**
          * init vars
          */
-        $scrList   = [];
-        $scrset    = [];
+        $scrList = [];
+        $scrset = [];
         $sizesList = [];
 
         foreach ($css->getContents() as $content) {
             $scrList[str_replace('.', '', $content->getSelectors()[0]->getSelector())] = [
                 'value' => $content->getRules('width')[0]->getValue()->getSize(),
-                'unit'  => $content->getRules('width')[0]->getValue()->getUnit(),
+                'unit' => $content->getRules('width')[0]->getValue()->getUnit(),
             ];
         }
 
@@ -868,7 +875,7 @@ class TwigFilter
             }
 
             $width = (int) $sizes[$selector];
-            $unit  = str_replace($width, '', $sizes[$selector]);
+            $unit = str_replace($width, '', $sizes[$selector]);
 
             if ($unit == 'rem' || $unit == 'em') {
                 // convert to pixel with default em (16px)
@@ -880,18 +887,18 @@ class TwigFilter
              */
             $resized = ImageResizer::filterGetUrl(url($image), $width, null, [
                 'extension' => $ext,
-                'quality'   => $quality,
-                'filters'   => $options,
+                'quality' => $quality,
+                'filters' => $options,
             ]);
 
             // min is 1
             if ($rule['value'] == 0) {
-                $scrset[]   = url($resized) . ' 1w';
+                $scrset[] = url($resized) . ' 1w';
                 $ruleBefore = 0;
                 continue;
             }
 
-            $scrset[]    = url($resized) . ' ' . $rule['value'] . 'w';
+            $scrset[] = url($resized) . ' ' . $rule['value'] . 'w';
             $sizesList[] = '(min-width: ' . $ruleBefore . $rule['unit'] .
                 ') and (max-width: ' . ($rule['value'] - 1) . $rule['unit'] . ') ' .
                 $sizes[$selector];
@@ -927,12 +934,13 @@ class TwigFilter
     /**
      * get frontend user name from id
      * @param  interger $userId backend user-id
-     * @return string         first name and last name or id if winter:user is not installed/active
+     * @return string   first name and last name or id if winter:user is not installed/active
      */
     public function filterFrontendUser($userId)
     {
         if (PluginManager::instance()->exists('Winter\User') === true) {
             $user = \Winter\User\Models\User::find($userId);
+
             return $user->first_name . ' ' . $user->last_name;
         }
 
@@ -942,11 +950,12 @@ class TwigFilter
     /**
      * get backend user name from id
      * @param  interger $userId backend user-id
-     * @return string         first name and last name
+     * @return string   first name and last name
      */
     public function filterBackendUser($userId)
     {
         $user = BackendUser::find($userId);
+
         return $user->first_name . ' ' . $user->last_name;
     }
 
@@ -959,7 +968,7 @@ class TwigFilter
      * @since   0.0.1
      *
      * @param  array $array array to parse
-     * @return  array      array with unique entries
+     * @return array array with unique entries
      */
     public function filterUnique($array)
     {
@@ -979,15 +988,15 @@ class TwigFilter
      * @since   0.0.1
      *
      * @param  string $string string to generate qrcode from
-     * @return  string      svg with qrcode-image
+     * @return string svg with qrcode-image
      */
-    public function filterQrCode(string $string): string
+    public function filterQrCode(string $string) : string
     {
         $options = new QROptions([
-            'version'      => 5,
-            'outputType'   => QRCode::OUTPUT_MARKUP_SVG,
-            'eccLevel'     => QRCode::ECC_L,
-            'imageBase64'  => false,
+            'version' => 5,
+            'outputType' => QRCode::OUTPUT_MARKUP_SVG,
+            'eccLevel' => QRCode::ECC_L,
+            'imageBase64' => false,
             'addQuietzone' => false,
         ]);
 
