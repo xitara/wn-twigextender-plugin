@@ -1,12 +1,19 @@
 {
     "compilerOptions": {
-        "outDir": "./dist/",
-        "noImplicitAny": true,
-        "module": "es6",
-        "target": "es6",
-        "jsx": "react",
+        "allowImportingTsExtensions": true,
         "allowJs": true,
-        "moduleResolution": "node",
-        "sourceMap": true
-    }
+        "checkJs": false,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "rewriteRelativeImportExtensions": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "target": "ES2022",
+        "useDefineForClassFields": true
+    },
+    "include": ["src/**/*.ts", "src/**/*.js"],
+    "exclude": ["assets", "dist", "node_modules", "vendor"]
 }

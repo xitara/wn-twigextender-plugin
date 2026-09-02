@@ -1,94 +1,89 @@
-# Webpack 5 ES6+ Sass Boilerplate with optional WinterCMS flavour [![devDependency Status](https://david-dm.org/xitara/webpack-boilerplate/dev-status.svg)](https://david-dm.org/xitara/webpack-boilerplate/?type=dev) [![Known Vulnerabilities](https://snyk.io/test/github/xitara/webpack-boilerplate/badge.svg)](https://snyk.io//test/github/xitara/webpack-boilerplate)
+# Xitara TwigExtender
 
-## Description
+TwigExtender adds reusable Twig filters and functions to Winter CMS. The plugin
+registers them through Winter's native `registerMarkupTags()` hook and has no
+runtime dependency on `Xitara.Nexus`.
 
-A webpack 5 based boilerplate for WinterCMS or other web projects.
-In WinterCMS clone the repo and copy all files into the plugin or theme you want.
-Otherwise clone the repo to a folder of your choice and change
-`STORAGE` in `bash/config.sh` if needed
+## Requirements
 
-## Dependencies
+- PHP 8.2 or newer
+- Winter CMS 1.2 or newer
+- Composer 2
 
-- `yarn`
-- `bash` to run `zip`, `fly`, `deploy` and `ftp`, testet on debian/buster
-- `lftp` to upload with ftp by `yarn ftp`, testet on debian/buster
+The CSS-variable and QR-code filters use `sabberworm/php-css-parser` and
+`chillerlan/php-qrcode`. Both libraries are declared directly in
+`composer.json`; they no longer need to be supplied by another Xitara plugin.
 
-## Optional
-- `phpdoc` to generate docs with `yarn docs`. See [https://docs.phpdoc.org/3.0/](https://docs.phpdoc.org/3.0/) for details
+## Available Twig extensions
 
-## Quick start
+### Filters
 
-- clone the repo via `git clone https://github.com/xitara/webpack-boilerplate.git`
-- `cd webpack-es6-sass-boilerplate`
-- run `yarn` to fetch all the dependencies
-- change settings in `package.json` and `bash/config.sh` if possible
-- run `yarn start` to start the [webpack-dev-server](https://github.com/webpack/webpack-dev-server) (`localhost:8080` will be opened automatically)
-- start developing
-- when you are done, run `yarn build` to get the production version of your app
+| Filter                             | Purpose                                                                  |
+| ---------------------------------- | ------------------------------------------------------------------------ |
+| `backenduser`, `frontenduser`      | Resolve a backend or optional Winter.User account name from an ID.       |
+| `backtrans`                        | Translate and escape a backend language key.                             |
+| `css_var`                          | Replace `{theme}`, `{media}`, and `{plugin}` placeholders in CSS values. |
+| `email_link`, `phone_link`, `link` | Build common HTML links.                                                 |
+| `filesize`, `mediadata`            | Read file size or MIME metadata.                                         |
+| `image_text`                       | Build `alt` and optional `title` attributes from image metadata.         |
+| `inject`                           | Inject SVG content or render an image for a project-relative file.       |
+| `localize`                         | Convert a date to an explicit UTC offset or the application time zone.   |
+| `parentlink`                       | Remove the final segment from a slash-separated path.                    |
+| `plugin`, `storage`                | Prefix a value with the configured plugin or storage path.               |
+| `qrcode`                           | Render a string as SVG QR code.                                          |
+| `regex_replace`                    | Apply a regular-expression replacement.                                  |
+| `scrset`                           | Build a responsive image element from the theme's breakpoint CSS.        |
+| `slug`                             | Generate a locale-aware slug with Winter/Laravel `Str::slug()`.          |
+| `strip_html`                       | Remove HTML from a string.                                               |
+| `truncate`                         | Limit plain text or HTML while preserving the selected mode.             |
+| `truncate_html`                    | Deprecated alias for HTML truncation; use `truncate(..., 'html')`.       |
+| `unique`                           | Deduplicate and sort an array.                                           |
 
-## Commands
+### Functions
 
-- `start` - start the dev server
-- `watch` - start webpack --watch
-- `dwatch` - start webpack --watch in development-mode
-- `build` - create build in `build` folder
-- `dbuild` - create development build in `build` folder
-- `zip` - build project and pack relevant folder/files to a zip-file one level down
-- `deploy` - build project and deploy to a folder name in package.json one level down with backup if folder exists
-- `ftp` - uploads build project per FTP. Configs in ./bash/config.sh
-- `docs` - generates docs with `phpdoc` if installed
-- `analyze` - analyze your production bundle
-- `lint-code` - run an ESLint check
-- `lint-style` - run a Stylelint check
-- `check-eslint-config` - check if ESLint config contains any rules that are unnecessary or conflict with Prettier
-- `check-stylelint-config` - check if Stylelint config contains any rules that are unnecessary or conflict with Prettier
-- `cleanup` - delete build-folder, node_modulesand other generated files/folders. files in src and static stay untouched
+| Function   | Purpose                                                          |
+| ---------- | ---------------------------------------------------------------- |
+| `config()` | Read a Winter/Laravel configuration value.                       |
+| `d()`      | Return buffered `var_dump()` output for development diagnostics. |
+| `uid()`    | Generate a unique string identifier.                             |
 
-## Including
+`frontenduser` returns the original ID when `Winter.User` is not installed.
+Slug generation uses `app.locale` when no language is supplied. Date
+localization falls back to `app.timezone` when no explicit browser offset is
+passed.
 
-- [webpack 5](https://github.com/webpack/webpack)
-- [tailwindcss](https://tailwindcss.com)
-- [tailwindcss/ui](https://tailwindui.com/)
-- [tailwindcss-plugins](https://github.com/lorisleiva/tailwindcss-plugins)
-- [tailwindcss-typography](https://github.com/tailwindlabs/tailwindcss-typography)
-- [alpinejs](https://github.com/alpinejs/alpine)
-- [glightbox](https://github.com/biati-digital/glightbox)
-- [tiny-slider](https://github.com/ganlanyuan/tiny-slider)
-- [simplebar](https://github.com/Grsmto/simplebar)
-- [mark.js](https://markjs.io/)
-- babel
-- brotli / gzip compression for assets
-- eslint / stylelint
-- husky pre push tests
-- sass
-- purgecss (for sass and tailwindcss)
+Filters that create HTML or read files assume trusted template input. Escape or
+validate data from untrusted sources before passing it to `link`, `inject`,
+`qrcode`, or the image helpers.
 
-## WinterCMS specific commands
+## Examples
 
-- `wn-init-theme` - adds folders to create a complete [WinterCMS](https://wintercms.com) theme boilerplate
-- `wn-kill-theme` - removes folders for WinterCMS theme including `theme.yaml` and `conifg` from static. Handle with care, it's not recoverable
-
-## WinterCMS specific settings
-
-- add the following lines to your `.htaccess` to access the compiled index.html inside your theme dev:
-- it works with and without translation-prefix
-```
-##
-## enable display index.html for development
-##
-RewriteRule ^themes/.*/index\.html - [L,NC]
-RewriteRule ^.*/themes/(.*)/index\.html /themes/$1/index\.html [L,NC]
-RewriteRule ^.*/themes/(.*)/(assets|resources)/(.*) /themes/$1/$2/$3 [L,NC]
+```twig
+{{ 'Über uns'|slug }}
+{{ page.updated_at|localize }}
+{{ this.theme.logo|media|inject }}
+{{ contact.phone|phone_link({ classes: 'contact-link' })|raw }}
 ```
 
-## Update 0.8.1
+## Installation and development
 
-- Update to webpack 5
-- Update all dependencies
-- Add a fetch method to utils.js
+Install the plugin as `plugins/xitara/twigextender`, then install its Composer
+dependencies. The frontend boilerplate is not required for the PHP/Twig runtime.
 
-## Update 0.8.2
+```bash
+composer install
+```
 
-- Add cross-env
-- Switch to tailwind JIT-compiler
-- Update all dependencies
+The repository also contains the shared Xitara Webpack toolchain. Its common
+development commands are:
+
+```bash
+yarn lint
+yarn test-unit
+yarn build
+yarn test
+```
+
+Packaging, upload, deployment, and cleanup commands can write outside the
+source tree or remove generated state. Review their configuration and targets
+before running them.

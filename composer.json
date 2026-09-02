@@ -2,7 +2,12 @@
     "name": "xitara/wn-twigextender-plugin",
     "type": "winter-plugin",
     "description": "Twig Extender Winter CMS plugin",
-    "keywords": ["winter", "cms", "logger", "plugin"],
+    "keywords": [
+        "winter",
+        "cms",
+        "twig",
+        "plugin"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -12,12 +17,22 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
-        "composer/installers": "~1.0"
+        "php": ">=8.2",
+        "composer/installers": "^1.11",
+        "sabberworm/php-css-parser": "^8.4",
+        "chillerlan/php-qrcode": "^4.3"
+    },
+    "conflict": {
+        "winter/wn-backend-module": "<1.2"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.93",
+        "phpdocumentor/shim": "*"
     },
     "config": {
         "allow-plugins": {
-            "composer/installers": true
+            "composer/installers": true,
+            "phpdocumentor/shim": true
         }
     }
 }

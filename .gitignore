@@ -21,6 +21,7 @@ yarn.lock
 .husky
 *.code-workspace
 /secure
+/scripts/config.cjs
 
 ### Composer ###
 composer.lock

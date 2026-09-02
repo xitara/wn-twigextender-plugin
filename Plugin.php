@@ -13,7 +13,7 @@ class Plugin extends PluginBase
     /**
      * Returns information about this plugin.
      */
-    public function pluginDetails() : array
+    public function pluginDetails(): array
     {
         return [
             'name' => 'xitara.twigextender::lang.plugin.name',

@@ -25,7 +25,8 @@ $on(document, 'DOMContentLoaded', () => {
             let el = qs('.scroll-to-top');
 
             const scrollToTop = () => {
-                if (document.body.scrollTop > config.scrollOffset ||
+                if (
+                    document.body.scrollTop > config.scrollOffset ||
                     document.documentElement.scrollTop > config.scrollOffset
                 ) {
                     el.style.display = 'block';

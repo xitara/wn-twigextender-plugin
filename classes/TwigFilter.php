@@ -2,6 +2,7 @@
 
 namespace Xitara\TwigExtender\Classes;
 
+use Backend\Models\User as BackendUser;
 use Carbon\Carbon;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
@@ -14,8 +15,8 @@ use Sabberworm\CSS\Parser as CssParser;
 use Storage;
 use Str;
 use System\Classes\ImageResizer;
+use System\Classes\PluginManager;
 use Winter\Storm\Parse\Bracket;
-use Xitara\TwigExtender\Plugin as TwigExtender;
 
 /**
  * additional twig filters
@@ -69,7 +70,7 @@ class TwigFilter
      * @param  array  $options Options from twig
      * @return string Complete link in html
      */
-    public function filterLink($text, $options = null) : string
+    public function filterLink($text, $options = null): string
     {
         /**
          * Process options
@@ -112,7 +113,7 @@ class TwigFilter
      * @param  array  $options options from twig
      * @return string complete link in html
      */
-    public function filterPhoneLink($text, $options = null) : string
+    public function filterPhoneLink($text, $options = null): string
     {
         /**
          * process options
@@ -162,7 +163,7 @@ class TwigFilter
      * @param  array  $options options from twig
      * @return string complete link in html
      */
-    public function filterEmailLink($text, $options = null) : string
+    public function filterEmailLink($text, $options = null): string
     {
         /**
          * remove subject and body from mail if given
@@ -230,7 +231,7 @@ class TwigFilter
      * @param  string     $path relativ path in storage/app
      * @return array|bool filedata or false if file not exists
      */
-    public function filterMediaData($file = null) : array
+    public function filterMediaData($file = null): array
     {
         $empty = [
             'size' => 0,
@@ -259,7 +260,7 @@ class TwigFilter
         // var_dump($file);
 
         if (strpos(File::mimeType($file), '/')) {
-            list($type, $art) = explode('/', File::mimeType($file));
+            [$type, $art] = explode('/', File::mimeType($file));
         }
 
         if (($art ?? null) == 'svg+xml') {
@@ -285,7 +286,7 @@ class TwigFilter
      * @param  string   $path     path relative to storage/app, default "media"
      * @return int|bool filesize in bytes or false if file not exists
      */
-    public function filterFileSize($filename, $path = 'media') : string
+    public function filterFileSize($filename, $path = 'media'): string
     {
         $size = Storage::size($path . $filename);
 
@@ -302,7 +303,7 @@ class TwigFilter
      * @param  string $replacement replacement string
      * @return string new string
      */
-    public function filterRegexReplace($subject, $pattern, $replacement) : string
+    public function filterRegexReplace($subject, $pattern, $replacement): string
     {
         return preg_replace($pattern, $replacement, $subject);
     }
@@ -320,11 +321,7 @@ class TwigFilter
             $lang = \Config::get('app.locale');
         }
 
-        if (class_exists("\Xitara\Nexus\Plugin")) {
-            return \Xitara\Nexus\Plugin::slug($text, $seperator, $lang);
-        }
-
-        return Str::slug($text, $seperator);
+        return Str::slug($text, $seperator, $lang);
     }
 
     /**
@@ -345,7 +342,7 @@ class TwigFilter
      * @param  string $hint   hint after truncated text, default '...'
      * @return string truncated string with html
      */
-    public function filterTruncate($text, $length = 100, $type = 'text', $hint = '...') : string
+    public function filterTruncate($text, $length = 100, $type = 'text', $hint = '...'): string
     {
         switch ($type) {
             case 'html':
@@ -370,7 +367,7 @@ class TwigFilter
      * @return string truncated string with html
      * @deprecated
      */
-    public function filterTruncateHtml($text, $length = 100, $hint = '...') : string
+    public function filterTruncateHtml($text, $length = 100, $hint = '...'): string
     {
         \Log::warning('Filter |truncate_html is deprecated. Use |truncate instead');
 
@@ -395,7 +392,7 @@ class TwigFilter
      * @param  string $path filename relative to project root
      * @return string content of file
      */
-    public function filterInject($file, $base = null, $options = []) : string
+    public function filterInject($file, $base = null, $options = []): string
     {
         /**
          * Decode filename to fetch it from filesystem
@@ -510,15 +507,21 @@ class TwigFilter
                         'extension' => $options['resize']['ext'] ?? 'png',
                         'quality' => $options['resize']['quality'] ?? 90,
                         'filters' => $options['resize']['options'] ?? null,
-                    ]
+                    ],
                 );
             }
 
             /**
              * generate image path and return img-element
              */
-            return '<img src="' . url($file) . '"' . $alt . $title . $classes .
-                join(' ', $attributes) . '>';
+            return '<img src="' .
+                url($file) .
+                '"' .
+                $alt .
+                $title .
+                $classes .
+                join(' ', $attributes) .
+                '>';
         }
 
         /**
@@ -574,7 +577,7 @@ class TwigFilter
      * @param  array  $options some optional options
      * @return string prefixed text with $art
      */
-    public function filterAddImageText($image, $options = null) : string
+    public function filterAddImageText($image, $options = null): string
     {
         if ($image === null) {
             return '';
@@ -624,10 +627,11 @@ class TwigFilter
             $text = $options['default']['title'] ?? '';
         }
 
-        if (isset($image->title)
-            && $image->title !== null
-            && $image->title != ''
-            && ($text == '' || ($options['first'] ?? 'title') == 'title')
+        if (
+            isset($image->title) &&
+            $image->title !== null &&
+            $image->title != '' &&
+            ($text == '' || ($options['first'] ?? 'title') == 'title')
         ) {
             $text = Html::strip($image->title);
         }
@@ -648,7 +652,7 @@ class TwigFilter
      * @since   0.0.1
      * @return string unique id
      */
-    public function functionGenerateUid() : string
+    public function functionGenerateUid(): string
     {
         $id = uniqid(rand(), true);
         $id = str_replace('.', '-', $id);
@@ -661,7 +665,7 @@ class TwigFilter
      * @param  string $text filename relative to project root
      * @return string content of file
      */
-    public function filterParentLink($text) : string
+    public function filterParentLink($text): string
     {
         $parts = explode('/', $text);
         array_pop($parts);
@@ -684,7 +688,7 @@ class TwigFilter
 
             $timezone = Carbon::now($utcOffset)->tzName;
         } else {
-            $timezone = TwigExtender::getTimezone();
+            $timezone = Config::get('app.timezone', 'UTC');
         }
 
         \Log::debug($timezone);
@@ -814,8 +818,14 @@ class TwigFilter
      * @param  array  $options see https://wintercms.com/docs/services/image-resizing#usage for details
      * @return string $image translated string
      */
-    public function filterScrset($image, $sizes, $text = null, $ext = null, $quality = 90, $options = null)
-    {
+    public function filterScrset(
+        $image,
+        $sizes,
+        $text = null,
+        $ext = null,
+        $quality = 90,
+        $options = null,
+    ) {
         $theme = Theme::getActiveTheme();
 
         /**
@@ -899,8 +909,14 @@ class TwigFilter
             }
 
             $scrset[] = url($resized) . ' ' . $rule['value'] . 'w';
-            $sizesList[] = '(min-width: ' . $ruleBefore . $rule['unit'] .
-                ') and (max-width: ' . ($rule['value'] - 1) . $rule['unit'] . ') ' .
+            $sizesList[] =
+                '(min-width: ' .
+                $ruleBefore .
+                $rule['unit'] .
+                ') and (max-width: ' .
+                ($rule['value'] - 1) .
+                $rule['unit'] .
+                ') ' .
                 $sizes[$selector];
 
             $ruleBefore = $rule['value'];
@@ -990,7 +1006,7 @@ class TwigFilter
      * @param  string $string string to generate qrcode from
      * @return string svg with qrcode-image
      */
-    public function filterQrCode(string $string) : string
+    public function filterQrCode(string $string): string
     {
         $options = new QROptions([
             'version' => 5,

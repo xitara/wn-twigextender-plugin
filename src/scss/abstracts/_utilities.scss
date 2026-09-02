@@ -1,9 +1,10 @@
+@use 'sass:map';
 @import '~bootstrap/scss/utilities';
 
-$utilities: map-merge(
+$utilities: map.merge(
     $utilities,
     (
-        "button-rounded": (
+        'button-rounded': (
             property: border-radius,
             class: button-rounded,
             values: (

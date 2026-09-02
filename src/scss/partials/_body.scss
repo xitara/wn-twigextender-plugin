@@ -6,7 +6,6 @@
 // @include m.scroll-to-top();
 
 $margin: 20rem;
-
 $thumb-width: 5rem;
 $thumb-height: 5rem;
 $thumb-gap: 0.5rem;
@@ -26,11 +25,9 @@ $thumb-gap: 0.5rem;
             margin: 0;
             padding: 0;
 
-
             li {
                 width: $thumb-width;
                 height: $thumb-height;
-
                 margin: $thumb-gap $thumb-gap $thumb-gap 0;
 
                 &:first-child {
@@ -52,7 +49,6 @@ $thumb-gap: 0.5rem;
         figure {
             margin: 0;
             padding: 0;
-            width: inherit;
             height: inherit;
             width: 100%;
 
