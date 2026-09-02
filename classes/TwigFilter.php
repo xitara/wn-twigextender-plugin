@@ -636,6 +636,13 @@ class TwigFilter
             $text = Html::strip($image->title);
         }
 
+        /**
+         * Set alt-text to filename if no text is given to make img-tag valid
+         */
+        if ($art == 'alt' && $text == '') {
+            $text = basename($image);
+        }
+
         if ($text != '') {
             $text = ' ' . $art . '="' . $text . '"';
         }
