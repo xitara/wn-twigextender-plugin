@@ -19,10 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replace the generic boilerplate README with TwigExtender runtime and usage documentation.
 - Replace the obsolete mixed Bash/Node build helpers with the maintained Xitara Yarn toolchain, strict linting, formatting, PHP checks, and build-artifact validation.
 - Treat TwigExtender as a PHP-only runtime plugin and avoid publishing empty frontend bundles.
+- Update the canonical repository metadata after moving the project to the Xitara-SoftWerX GitHub organization.
 
 ### Fixed
 
 - Import the Winter plugin manager and backend user model used by the registered filters.
 
-[Unreleased]: https://github.com/xitara/wn-twigextender-plugin/compare/v1.1.0...HEAD
-[1.1.0]: https://github.com/xitara/wn-twigextender-plugin/releases/tag/v1.1.0
+[Unreleased]: https://github.com/Xitara-SoftWerX/wn-twigextender-plugin/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/Xitara-SoftWerX/wn-twigextender-plugin/releases/tag/v1.1.0

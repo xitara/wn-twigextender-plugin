@@ -7,7 +7,7 @@
     "type": "module",
     "repository": {
         "type": "git",
-        "url": "https://github.com/xitara/wn-twigextender-plugin.git"
+        "url": "https://github.com/Xitara-SoftWerX/wn-twigextender-plugin.git"
     },
     "scripts": {
         "install": "node ./scripts/setup.js && node ./scripts/composer.js",
